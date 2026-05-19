@@ -17,6 +17,7 @@ $ tt Hello, world!
 - **Three LLM providers** — OpenAI, Anthropic, Gemini
 - **Any language pair** — configure once, translate both ways instantly
 - **Stdin support** — pipe text directly: `echo "hello" | tt`
+- **Override target language** — translate into any language on the fly with `--to <lang>`
 - **Fast** — direct HTTP to provider APIs, 30s timeout, no overhead
 
 ## Installation
@@ -86,6 +87,23 @@ echo "hello world" | tt
 cat article.txt | tt
 # → <translated text>
 ```
+
+### Override target language
+
+Translate into any language regardless of your configured pair:
+
+```bash
+tt --to uk Hello, world!
+# → Привіт, світе!
+
+tt --to de Hello, world!
+# → Hallo, Welt!
+
+echo "Hello" | tt --to ja
+# → こんにちは
+```
+
+Pass any ISO 639-1 language code: `en`, `uk`, `ru`, `de`, `fr`, `es`, `zh`, `ja`, `ko`, …
 
 ## Configuration
 
