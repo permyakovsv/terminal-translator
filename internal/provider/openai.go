@@ -31,7 +31,7 @@ func (p *OpenAIProvider) Translate(ctx context.Context, req TranslateRequest) (T
 		"model": p.Model,
 		"messages": []map[string]string{
 			{"role": "system", "content": BuildSystemPrompt(req.From, req.To)},
-			{"role": "user", "content": req.Text},
+			{"role": "user", "content": WrapText(req.Text)},
 		},
 	})
 	if err != nil {

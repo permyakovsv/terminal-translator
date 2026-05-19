@@ -36,7 +36,7 @@ func (p *GeminiProvider) Translate(ctx context.Context, req TranslateRequest) (T
 		"contents": []map[string]any{
 			{
 				"role":  "user",
-				"parts": []map[string]string{{"text": req.Text}},
+				"parts": []map[string]string{{"text": WrapText(req.Text)}},
 			},
 		},
 	})

@@ -32,7 +32,7 @@ func (p *AnthropicProvider) Translate(ctx context.Context, req TranslateRequest)
 		"max_tokens": 1024,
 		"system":     BuildSystemPrompt(req.From, req.To),
 		"messages": []map[string]string{
-			{"role": "user", "content": req.Text},
+			{"role": "user", "content": WrapText(req.Text)},
 		},
 	})
 	if err != nil {
