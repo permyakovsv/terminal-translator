@@ -9,8 +9,11 @@ import (
 	"github.com/permyakov/tt/internal/provider"
 )
 
-func Translate(ctx context.Context, cfg *config.Config, text string) (string, error) {
+func Translate(ctx context.Context, cfg *config.Config, text, forceTo string) (string, error) {
 	from, to := detect.Direction(text, cfg.Languages.First, cfg.Languages.Second)
+	if forceTo != "" {
+		to = forceTo
+	}
 
 	entry, ok := provider.Find(cfg.Provider.Name)
 	if !ok {
