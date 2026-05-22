@@ -8,6 +8,9 @@ Hello, world!
 
 $ tt Hello, world!
 Привіт, світе!
+
+$ echo "Hello, world!" | tt
+Привіт, світе!
 ```
 
 ## Features
