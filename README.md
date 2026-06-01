@@ -18,6 +18,7 @@ $ tt Hello, world!
 - **Any language pair** — configure once, translate both ways instantly
 - **Stdin support** — pipe text directly: `echo "hello" | tt`
 - **Override target language** — translate into any language on the fly with `--to <lang>`
+- **Grammar check** — analyse spelling, grammar, and usage of the source text with `-g`
 - **Fast** — direct HTTP to provider APIs, 30s timeout, no overhead
 
 ## Installation

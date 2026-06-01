@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**tt** (Terminal Translator) is a lightweight, single-binary CLI tool that translates text between two configured languages using LLM providers (OpenAI, Anthropic, Gemini). It auto-detects the source language from Unicode script detection and supports both command-line arguments and stdin piping.
+**tt** (Terminal Translator) is a lightweight, single-binary CLI tool that translates text between two configured languages using LLM providers (OpenAI, Anthropic, Gemini). It auto-detects the source language from Unicode script detection and supports both command-line arguments and stdin piping. The `--to` flag overrides the target language at runtime. The `-g` / `--grammar` flag prints a spelling and language analysis of the source text (in the source language) after the translation, with output tailored to the input type: word, phrase, idiom, or sentence/text.
 
 ## Build & Development Commands
 

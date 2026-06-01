@@ -11,12 +11,14 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/permyakov/tt/internal/config"
+	"github.com/permyakov/tt/internal/grammar"
 	"github.com/permyakov/tt/internal/provider"
 	"github.com/permyakov/tt/internal/translate"
 )
 
 var initFlag bool
 var toFlag string
+var grammarFlag bool
 
 var rootCmd = &cobra.Command{
 	Use:           "tt [text...]",
@@ -30,6 +32,7 @@ var rootCmd = &cobra.Command{
 func init() {
 	rootCmd.Flags().BoolVar(&initFlag, "init", false, "Run interactive setup")
 	rootCmd.Flags().StringVar(&toFlag, "to", "", "Target language code (e.g. uk, en, de); overrides config")
+	rootCmd.Flags().BoolVarP(&grammarFlag, "grammar", "g", false, "Check grammar and spelling of source text")
 }
 
 func main() {
@@ -174,5 +177,13 @@ func runTranslate(text, forceTo string) error {
 		return err
 	}
 	fmt.Println(result)
+	if grammarFlag {
+		analysis, err := grammar.Check(context.Background(), cfg, text, forceTo)
+		if err != nil {
+			return err
+		}
+		fmt.Println()
+		fmt.Println(analysis)
+	}
 	return nil
 }

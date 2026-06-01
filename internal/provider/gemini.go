@@ -26,42 +26,42 @@ func NewGemini(model, apiKey string) *GeminiProvider {
 	}
 }
 
-func (p *GeminiProvider) Translate(ctx context.Context, req TranslateRequest) (TranslateResponse, error) {
+func (p *GeminiProvider) complete(ctx context.Context, system, user string) (string, error) {
 	url := fmt.Sprintf(geminiURLTemplate, p.Model, p.APIKey)
 
 	body, err := json.Marshal(map[string]any{
 		"system_instruction": map[string]any{
-			"parts": []map[string]string{{"text": BuildSystemPrompt(req.From, req.To)}},
+			"parts": []map[string]string{{"text": system}},
 		},
 		"contents": []map[string]any{
 			{
 				"role":  "user",
-				"parts": []map[string]string{{"text": WrapText(req.Text)}},
+				"parts": []map[string]string{{"text": user}},
 			},
 		},
 	})
 	if err != nil {
-		return TranslateResponse{}, fmt.Errorf("gemini marshal: %w", err)
+		return "", fmt.Errorf("gemini marshal: %w", err)
 	}
 
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
-		return TranslateResponse{}, err
+		return "", err
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
 
 	resp, err := p.client.Do(httpReq)
 	if err != nil {
-		return TranslateResponse{}, fmt.Errorf("gemini request: %w", err)
+		return "", fmt.Errorf("gemini request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return TranslateResponse{}, fmt.Errorf("gemini read response: %w", err)
+		return "", fmt.Errorf("gemini read response: %w", err)
 	}
 	if resp.StatusCode != http.StatusOK {
-		return TranslateResponse{}, fmt.Errorf("gemini %d: %s", resp.StatusCode, string(respBody))
+		return "", fmt.Errorf("gemini %d: %s", resp.StatusCode, string(respBody))
 	}
 
 	var result struct {
@@ -75,13 +75,25 @@ func (p *GeminiProvider) Translate(ctx context.Context, req TranslateRequest) (T
 		} `json:"candidates"`
 	}
 	if err := json.Unmarshal(respBody, &result); err != nil {
-		return TranslateResponse{}, fmt.Errorf("gemini response: %w", err)
+		return "", fmt.Errorf("gemini response: %w", err)
 	}
 	if len(result.Candidates) == 0 {
-		return TranslateResponse{}, fmt.Errorf("gemini: empty candidates")
+		return "", fmt.Errorf("gemini: empty candidates")
 	}
 	if len(result.Candidates[0].Content.Parts) == 0 {
-		return TranslateResponse{}, fmt.Errorf("gemini: empty parts (finish reason: %s)", result.Candidates[0].FinishReason)
+		return "", fmt.Errorf("gemini: empty parts (finish reason: %s)", result.Candidates[0].FinishReason)
 	}
-	return TranslateResponse{Text: result.Candidates[0].Content.Parts[0].Text}, nil
+	return result.Candidates[0].Content.Parts[0].Text, nil
+}
+
+func (p *GeminiProvider) Translate(ctx context.Context, req TranslateRequest) (TranslateResponse, error) {
+	text, err := p.complete(ctx, BuildSystemPrompt(req.From, req.To), WrapText(req.Text))
+	if err != nil {
+		return TranslateResponse{}, err
+	}
+	return TranslateResponse{Text: text}, nil
+}
+
+func (p *GeminiProvider) GrammarCheck(ctx context.Context, req GrammarRequest) (string, error) {
+	return p.complete(ctx, BuildGrammarSystemPrompt(req.Lang, req.To), WrapText(req.Text))
 }
